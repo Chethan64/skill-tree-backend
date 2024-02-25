@@ -25,10 +25,11 @@ public class EndorsementController {
     @GetMapping(value = "")
     public Page<EndorsementModel> getAllEndorsements(
             @RequestParam(name = "offset", defaultValue = "0", required = false) @Min(0) int offset,
-            @RequestParam(name = "limit", defaultValue = "10", required = false) @Min(1) int limit
+            @RequestParam(name = "limit", defaultValue = "10", required = false) @Min(1) int limit,
+            @RequestParam(name = "q", required = false) String queryString
     ) {
         PageRequest pageRequest = PageRequest.of(offset, limit);
-        return endorsementService.getEndorsements(pageRequest);
+        return endorsementService.getEndorsements(queryString,pageRequest);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
