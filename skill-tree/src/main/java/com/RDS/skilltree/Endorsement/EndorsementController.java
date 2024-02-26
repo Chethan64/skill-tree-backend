@@ -29,7 +29,7 @@ public class EndorsementController {
             @RequestParam(name = "q", required = false) String queryString
     ) {
         PageRequest pageRequest = PageRequest.of(offset, limit);
-        return endorsementService.getEndorsements(queryString,pageRequest);
+        return endorsementService.getEndorsements(queryString, pageRequest);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

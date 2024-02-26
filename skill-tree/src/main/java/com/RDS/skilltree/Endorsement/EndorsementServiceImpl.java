@@ -8,6 +8,7 @@ import com.RDS.skilltree.User.UserRepository;
 import com.RDS.skilltree.utils.RQLParser;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ public class EndorsementServiceImpl implements EndorsementService {
     @Override
     public Page<EndorsementModel> getEndorsements(String queryString, PageRequest pageRequest) {
         try {
+            System.out.println(queryString);
+            System.out.println(pageRequest);
+
             if (queryString == null || queryString.isEmpty()) {
                 return endorsementRepository.findAll(pageRequest);
             } else {

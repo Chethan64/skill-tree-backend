@@ -17,8 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,6 +80,54 @@ public class EndorsementServiceTest {
 
         // Verify the exception message
         assertEquals("No endorsement with the id " + nonExistentEndorsementId + " found", exception.getMessage());
+    }
+
+    @Test
+    public void itShouldGetEndorsementsBasedOnUserID() {
+        UUID endorsementId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID skillId = UUID.randomUUID();
+
+        UserModel userModel = UserModel.builder().id(userId).build();
+        SkillModel skillModel = SkillModel.builder().id(skillId).build();
+        EndorsementModel endorsementModel = EndorsementModel.builder()
+                .id(endorsementId)
+                .user(userModel)
+                .skill(skillModel)
+                .build();
+        endorsementModel.setCreatedAt(Instant.now());
+        endorsementModel.setUpdatedAt(Instant.now());
+        endorsementModel.setCreatedBy(userModel);
+        endorsementModel.setUpdatedBy(userModel);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Page<EndorsementModel> endorsementModelPage = new PageImpl<EndorsementModel>(List.of(endorsementModel));
+        when(endorsementRepository.findByUser_Id(userId, pageRequest)).thenReturn(endorsementModelPage);
+
+        String queryString = "userID:" + userId.toString();
+        Page<EndorsementModel> result = endorsementService.getEndorsements(queryString, pageRequest);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void itShouldThrowIllegalArgumentExceptionOnInvalidUserIDFormat() {
+        String invalidUserID = "invalidUserID";
+        String queryString = "userID:" + invalidUserID;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> endorsementService.getEndorsements(queryString, PageRequest.of(0, 10)));
+
+        assertEquals("Invalid parameter(s) provided: Invalid userID: invalidUserID", exception.getMessage());
+    }
+
+    @Test
+    public void itShouldThrowIllegalArgumentExceptionIfBothUserIDAndSkillIDAreNotProvided() {
+        String queryString = "user:invalidUserID";
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> endorsementService.getEndorsements(queryString, PageRequest.of(0, 10)));
+        assertEquals("Invalid parameter(s) provided: At least one of skillID or userID must be provided.", exception.getMessage());
     }
 
      @Test

@@ -13,6 +13,7 @@ public class RQLParser {
     public static Map<String, String> parseQueryString(String queryString) {
         Map<String, String> parsedQueryParams = new HashMap<>();
 
+        logger.debug("Parsing the query string");
         logger.debug(queryString);
 
         if (queryString == null || queryString.isEmpty()) {
